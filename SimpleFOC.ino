@@ -7,7 +7,7 @@ TaskHandle_t motorTaskHandle;
 
 #define ESC1
 
-
+float MAXVolts = 8;
 
 int RCLpin = 16;
 int RCRpin = 17;
@@ -38,7 +38,7 @@ int CURsenseRA = 35;
 int CURsenseRB = 34;
 
 int DZ = 20;  // dead
-float MAXVolts = 10;
+
 float target_velocity = 0;
 
 
