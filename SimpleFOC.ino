@@ -5,11 +5,12 @@
 #include <esp_task_wdt.h>
 TaskHandle_t motorTaskHandle;
 
-//#define ESC1
-//#define ESC2
-#define ESC3
+#define ESC1
 
 
+
+int RCLpin = 16;
+int RCRpin = 17;
 
 float Vlimit = 3;
 
@@ -31,21 +32,72 @@ int HALLpinLA = 13;
 int HALLpinLB = 19;
 int HALLpinLC = 18;
 
-
-
+int CURsenseLA = 39;
+int CURsenseLB = 36;
+int CURsenseRA = 35;
+int CURsenseRB = 34;
 
 int DZ = 20;  // dead
 float MAXVolts = 10;
 float target_velocity = 0;
 
 
+
+int leftoutputraw = 1500;
+int rightoutputraw = 1500;
+
+unsigned long previousMillis = 0;
+const long telem = 1000;
+
+float leftoutput = 0;
+float rightoutput = 0;
+
+int DI1O = 0;
+int FCHB = 1;
+int FCOK = 0;
+
+int BASEMODE = 0;
+int armed;
+int active = 0;
+
+float targetL = 0;
+float velocityL = 0;
+float voltageqL = 0;
+float currentqL = 0;
+
+float targetR = 0;
+float velocityR = 0;
+float voltageqR = 0;
+float currentqR = 0;
+
+
+uint8_t system_id = 1;
+uint8_t component_id = 158;
+uint8_t severity = 1;
+uint16_t id = 0;
+uint8_t chunk_seq = 0;
+
+#define GRID_ROWS 19  // Odd number works best so there is an exact middle row
+#define GRID_COLS 60  // Horizontal width (number of time samples)
+
+// Buffers to hold sample history
+float sample_history[GRID_COLS] = { 0 };
+int sample_index = 0;
+int count = 0;
+
+
+
 HallSensor sensor = HallSensor(HALLpinRA, HALLpinRB, HALLpinRC, polepairs);
 BLDCMotor motor = BLDCMotor(polepairs);
 BLDCDriver3PWM driver = BLDCDriver3PWM(PWMpinRA, PWMpinRB, PWMpinRC, polepairs);
+InlineCurrentSense current_sense = InlineCurrentSense(0.01f, 50.0f, CURsenseLA, CURsenseLB);
+
 
 HallSensor sensor1 = HallSensor(HALLpinLA, HALLpinLB, HALLpinLC, polepairs);
 BLDCMotor motor1 = BLDCMotor(polepairs);
 BLDCDriver3PWM driver1 = BLDCDriver3PWM(PWMpinLA, PWMpinLB, PWMpinLC, polepairs);
+InlineCurrentSense current_sense1 = InlineCurrentSense(0.01f, 50.0f, CURsenseRA, CURsenseRB);
+
 
 #ifdef ESC1
 int ESC = 140;  //board number
@@ -82,49 +134,6 @@ void doC1() {
 }
 
 
-
-
-int leftoutputraw = 1500;
-int rightoutputraw = 1500;
-
-unsigned long previousMillis = 0;
-const long telem = 2000;
-
-float leftoutput = 0;
-float rightoutput = 0;
-
-int DI1O = 0;
-int FCHB = 1;
-int FCOK = 0;
-
-int BASEMODE = 0;
-int armed;
-int active = 0;
-
-float targetL = 0;
-float velocityL = 0;
-float voltageqL = 0;
-float currentqL = 0;
-
-float targetR = 0;
-float velocityR = 0;
-float voltageqR = 0;
-float currentqR = 0;
-
-
-uint8_t system_id = 1;
-uint8_t component_id = 158;
-uint8_t severity = 1;
-uint16_t id = 0;
-uint8_t chunk_seq = 0;
-
-
-
-
-byte RCLpin = 16;
-byte RCRpin = 17;
-
-
 void PWM(void* pvParameters) {
   pinMode(RCLpin, INPUT);
   pinMode(RCRpin, INPUT);
@@ -141,7 +150,7 @@ void PWM(void* pvParameters) {
         //Serial.println(rightoutputraw);
       }
     } else {
-      Serial.print("MISSING RC INPUT");
+      // Serial.print("MISSING RC INPUT");
       motor.move(0);
       motor1.move(0);
       vTaskDelay(1000);
@@ -180,7 +189,7 @@ void Right_task(void* pvParameters) {
 
 
 void setup() {
-  Serial.begin(230400);  //Main serial port for console output
+  Serial.begin(500000);  //Main serial port for console output
   //Serial1.begin(230400, SERIAL_8N1, 16, 17);
   //Serial2.begin(38400, SERIAL_8N1, 2, 4);  //GPS+AIS
 
@@ -190,7 +199,9 @@ void setup() {
     .trigger_panic = true,
   };
   esp_task_wdt_reconfigure(&twdt_config);
-
+  SimpleFOCDebug::enable(&Serial);
+  current_sense.init();
+  current_sense1.init();
   driver.init();
   driver1.init();
   motor.linkDriver(&driver);
@@ -244,21 +255,21 @@ void loop() {
   //FOC_Speed();
   //motor.move(1);
   //motor1.move(1);
+  //FOC_telemetry();
 
-
-
-
+  //MAVLINK_HB();
 
 
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= telem) {
     previousMillis = currentMillis;
     MAVLINK_HB();
+    //Mavlink_Telemetry();
     // MAVLINK_ESC_1();
 
     if (DI1O == 1) { Mavlink_Telemetry(); }
     // if (DI1O == 2) { FCHBC(); }
-    //if (DI1O == 3) { FOC_telemetry(); }
+    // if (DI1O == 3) { FOC_telemetry(); }
     // if (DI1O == 4) { sleepcheck(); }
     DI1O++;
     if (DI1O > 4) { DI1O = 1; }
