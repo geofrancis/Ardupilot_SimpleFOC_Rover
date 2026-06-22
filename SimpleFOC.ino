@@ -240,16 +240,11 @@ void setup() {
 
 
 void loop() {
-  vTaskDelay(1);
-  // motor.monitor();
-  //motor1.monitor();
   MavLink_IN();
-  //FOC_Speed();
-  //motor.move(1);
-  //motor1.move(1);
-  //FOC_telemetry();
+  vTaskDelay(1);
+  //motor.monitor();
+  //motor1.monitor();
 
-  //MAVLINK_HB();
 
 
   unsigned long currentMillis = millis();
@@ -257,7 +252,6 @@ void loop() {
     previousMillis = currentMillis;
     MAVLINK_HB();
     //Mavlink_Telemetry();
-    // MAVLINK_ESC_1();
 
     if (DI1O == 1) { Mavlink_Telemetry(); }
     // if (DI1O == 2) { FCHBC(); }
