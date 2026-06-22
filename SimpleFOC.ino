@@ -165,11 +165,7 @@ void PWM(void* pvParameters) {
 void Left_task(void* pvParameters) {
   FOC_SETUPL();
   for (;;) {
-    // noInterrupts();
     motor.loopFOC();
-    // interrupts();
-    // vTaskDelay(1);
-    //motor.move(1);
   }
 }
 
@@ -177,11 +173,7 @@ void Left_task(void* pvParameters) {
 void Right_task(void* pvParameters) {
   FOC_SETUPR();
   for (;;) {
-    // noInterrupts();
     motor1.loopFOC();
-    // interrupts();
-    //vTaskDelay(1);
-    //motor1.move(1);
   }
 }
 
