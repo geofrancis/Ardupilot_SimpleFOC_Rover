@@ -1,6 +1,5 @@
 
 void STARTUPMSG() {
-
   mavlink_message_t msg;
   uint8_t buf[MAVLINK_MAX_PACKET_LEN];
   const char* name;
@@ -12,31 +11,6 @@ void STARTUPMSG() {
   uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
   Serial.write(buf, len);
 }
-
-
-
-
-
-
-void request_Mavlink() {
-  //Request Data from Pixhawk
-  uint8_t _system_id = 255;       // id of computer which is sending the command (ground control software has id of 255)
-  uint8_t _component_id = 158;    // seems like it can be any # except the number of what Pixhawk sys_id is
-  uint8_t _target_system = 1;     // Id # of Pixhawk (should be 1)
-  uint8_t _target_component = 0;  // Target component, 0 = all (seems to work with 0 or 1
-  uint8_t _req_stream_id = MAV_DATA_STREAM_ALL;
-  uint16_t _req_message_rate = 0xA;  //number of times per second to request the data in hex
-  uint8_t _start_stop = 1;           //1 = start, 0 = stop
-  mavlink_message_t msg;
-  uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-
-  // Pack the message
-  mavlink_msg_request_data_stream_pack(_system_id, _component_id, &msg, _target_system, _target_component, _req_stream_id, _req_message_rate, _start_stop);
-  uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);  // Send the message (.write sends as bytes)
-
-  Serial.write(buf, len);  //Write data to serial port
-}
-
 
 
 
@@ -83,37 +57,6 @@ void MavLink_IN() {
     }
   }
 }
-
-
-void FCHBC() {
-  // Serial.print("FCHB ");
-  // Serial.println(FCHB);
-  if (FCHB == 0) {
-    Serial.println("-------------------------------------------------------------NO FC HEARTBEAT");
-    // Serial.println(FCOK);
-    //  Serial.println(FCHB);
-    FCOK = 0;
-  }
-  if (FCHB > 1) {
-    // Serial.print("Rover ");
-    // Serial.println(FCOK);
-    // Serial.print(FCHB);
-    // Serial.println("Beats ");
-    // Serial.println("----------------------------------------------------------FC HEARTBEAT");
-    FCHB = 0;
-    FCOK = 1;
-  }
-}
-
-
-
-
-void HBWATCH() {
-  FCHB++;
-  //Serial.print("HB");
-}
-
-
 
 
 void MAVLINK_HB() {
@@ -218,20 +161,3 @@ void Mavlink_Telemetry() {
   Serial.write(buf, len);
 }
 
-
-
-void MAVLINK_ESC_1() {
-  // Serial.print("ESC1");
-  mavlink_message_t msg;
-  uint64_t time_usec = 1;
-  uint8_t index = 1; /*<  Index of the first ESC in this message. minValue = 0, maxValue = 60, increment = 4.*/
-
-  int32_t rrpm[] = { 200, 400, 800, 300 };
-  float Voltage[] = { 20, 40, 80, 30 };
-  float current[] = { 20, 40, 80, 30 };
-
-  mavlink_msg_esc_status_pack(1, 143, &msg, 0, time_usec, rrpm, Voltage, current);
-  uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-  uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
-  Serial.write(buf, len);
-}
