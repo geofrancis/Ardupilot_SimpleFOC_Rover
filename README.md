@@ -3,5 +3,4 @@
  can use mavlink servo packets or RC PWM input for control and sends named floats for telemetry..
 
 still to do:
-current monitoring
-other motor control methods
+other motor control modes like velocity and current based torque..
