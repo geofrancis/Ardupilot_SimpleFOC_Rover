@@ -251,15 +251,7 @@ void loop() {
   if (currentMillis - previousMillis >= telem) {
     previousMillis = currentMillis;
     MAVLINK_HB();
-    //Mavlink_Telemetry();
+    Mavlink_Telemetry();
 
-    if (DI1O == 1) { Mavlink_Telemetry(); }
-    // if (DI1O == 2) { FCHBC(); }
-    // if (DI1O == 3) { FOC_telemetry(); }
-    // if (DI1O == 4) { sleepcheck(); }
-    DI1O++;
-    if (DI1O > 4) { DI1O = 1; }
-    // Serial.print("                               DI1O  ");
-    // Serial.println(DI1O);
-  }
+}
 }
