@@ -4,3 +4,4 @@
 
 still to do:
 other motor control modes like velocity and current based torque..
+<img width="657" height="356" alt="image" src="https://github.com/user-attachments/assets/c7165b85-9e6d-45dd-b5a5-01e37acbb214" />
