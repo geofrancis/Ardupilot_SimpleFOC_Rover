@@ -1,9 +1,4 @@
 void FOC_SETUPL() {
-
-
-
-
-
   sensor.init();
   sensor.enableInterrupts(doA, doB, doC);
   motor.linkSensor(&sensor);
@@ -35,26 +30,22 @@ void FOC_SETUPR() {
   //commect out for auto detect
   motor1.sensor_direction = Direction::CCW;  // CW or CCW
   motor1.zero_electric_angle = 4.19;
-
-
+  
   motor1.initFOC();
 }
-
 
 
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+
 void FOC_Speed() {
-
-
   if (leftoutputraw > (1500 + DZ)) { leftoutput = mapFloat(leftoutputraw, (1500 + DZ), 2000, 0, MAXVolts); }
   if (leftoutputraw < (1500 - DZ)) { leftoutput = mapFloat(leftoutputraw, (1500 - DZ), 1000, 0, -MAXVolts); }
   if (leftoutputraw < (1500 + DZ) && leftoutputraw > (1500 - DZ)) {
     leftoutput = 0;
   }
-
   if (rightoutputraw > (1500 + DZ)) { rightoutput = mapFloat(rightoutputraw, (1500 + DZ), 2000, 0, MAXVolts); }
   if (rightoutputraw < (1500 - DZ)) { rightoutput = mapFloat(rightoutputraw, (1500 - DZ), 1000, 0, -MAXVolts); }
   if (rightoutputraw < (1500 + DZ) && rightoutputraw > (1500 - DZ)) {
@@ -67,12 +58,11 @@ void FOC_Speed() {
 
 
 void FOC_telemetry() {
-
+  
   PhaseCurrent_s currents = current_sense.getPhaseCurrents();
   float current_magnitude = current_sense.getDCCurrent();
   PhaseCurrent_s currents1 = current_sense1.getPhaseCurrents();
   float current_magnitude1 = current_sense1.getDCCurrent();
-
   count++;
   if (count >= 300) {
 
